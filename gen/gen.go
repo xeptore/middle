@@ -12,17 +12,17 @@ import (
 	"github.com/samber/lo"
 )
 
+func init() {
+	flag.StringVar(&pkg, "pkg", "github.com/xeptore/middle", "generated file package name")
+	flag.StringVar(&filename, "file", "./middle.go", "name of the file to write generated code in")
+	flag.IntVar(&n, "n", 26, "number of wares")
+}
+
 var alphabets = []string{
 	"A", "B", "C", "D", "E", "F",
 	"G", "H", "I", "J", "K", "L", "M",
 	"N", "O", "P", "Q", "R", "S", "T",
 	"U", "V", "W", "X", "Y", "Z",
-}
-
-func init() {
-	flag.StringVar(&pkg, "pkg", "github.com/xeptore/middle", "generated file package name")
-	flag.StringVar(&filename, "file", "./middle.go", "name of the file to write generated code in")
-	flag.IntVar(&n, "n", 26, "number of wares")
 }
 
 func structName(i int) string {

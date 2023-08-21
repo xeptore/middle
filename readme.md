@@ -16,4 +16,4 @@ This package exposes middleware functions chain builders for up to 26 functions,
 
 ## Using Generator
 
-See [`gen`](./gen/) package flags, and [`./gen.go`](./gen.go) for an example of usage.
+See [`gen`](./gen/gen.go) command line flags, and [`./gen.go`](./gen.go) for an example of usage.
