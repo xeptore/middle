@@ -4,117 +4,205 @@ package middle
 
 import "net/http"
 
-type mw1[A any] struct {
+type chain1[A any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw1[A]) Then(handler func(http.ResponseWriter, *http.Request, A)) http.HandlerFunc {
+type chainHandle1[A any] struct {
+	chain   chain1[A]
+	handler func(http.ResponseWriter, *http.Request, A) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain1[A]) Then(handler func(http.ResponseWriter, *http.Request, A) error) chainHandle1[A] {
+	return chainHandle1[A]{chain, handler}
+}
+
+func (chainHandle chainHandle1[A]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle1[A]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle1[A]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		handler(response, request, a)
 	}
 }
 
 // Chain1 creates a chain of exactly 1 number of function that will be executed in order.
-func Chain1[A any](f1 func(http.ResponseWriter, *http.Request) (A, error)) mw1[A] {
-	return mw1[A]{f1}
+func Chain1[A any](f1 func(http.ResponseWriter, *http.Request) (A, error)) chain1[A] {
+	return chain1[A]{f1}
 }
 
-type mw2[A any, B any] struct {
+type chain2[A any, B any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw2[A, B]) Then(handler func(http.ResponseWriter, *http.Request, A, B)) http.HandlerFunc {
+type chainHandle2[A any, B any] struct {
+	chain   chain2[A, B]
+	handler func(http.ResponseWriter, *http.Request, A, B) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain2[A, B]) Then(handler func(http.ResponseWriter, *http.Request, A, B) error) chainHandle2[A, B] {
+	return chainHandle2[A, B]{chain, handler}
+}
+
+func (chainHandle chainHandle2[A, B]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle2[A, B]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle2[A, B]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b)
 	}
 }
 
 // Chain2 creates a chain of exactly 2 number of functions that will be executed in order.
-func Chain2[A any, B any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error)) mw2[A, B] {
-	return mw2[A, B]{f1, f2}
+func Chain2[A any, B any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error)) chain2[A, B] {
+	return chain2[A, B]{f1, f2}
 }
 
-type mw3[A any, B any, C any] struct {
+type chain3[A any, B any, C any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 	f3 func(http.ResponseWriter, *http.Request) (C, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw3[A, B, C]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C)) http.HandlerFunc {
+type chainHandle3[A any, B any, C any] struct {
+	chain   chain3[A, B, C]
+	handler func(http.ResponseWriter, *http.Request, A, B, C) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain3[A, B, C]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C) error) chainHandle3[A, B, C] {
+	return chainHandle3[A, B, C]{chain, handler}
+}
+
+func (chainHandle chainHandle3[A, B, C]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle3[A, B, C]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle3[A, B, C]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c)
 	}
 }
 
 // Chain3 creates a chain of exactly 3 number of functions that will be executed in order.
-func Chain3[A any, B any, C any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error)) mw3[A, B, C] {
-	return mw3[A, B, C]{f1, f2, f3}
+func Chain3[A any, B any, C any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error)) chain3[A, B, C] {
+	return chain3[A, B, C]{f1, f2, f3}
 }
 
-type mw4[A any, B any, C any, D any] struct {
+type chain4[A any, B any, C any, D any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 	f3 func(http.ResponseWriter, *http.Request) (C, error)
 	f4 func(http.ResponseWriter, *http.Request) (D, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw4[A, B, C, D]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D)) http.HandlerFunc {
+type chainHandle4[A any, B any, C any, D any] struct {
+	chain   chain4[A, B, C, D]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain4[A, B, C, D]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D) error) chainHandle4[A, B, C, D] {
+	return chainHandle4[A, B, C, D]{chain, handler}
+}
+
+func (chainHandle chainHandle4[A, B, C, D]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle4[A, B, C, D]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle4[A, B, C, D]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d)
 	}
 }
 
 // Chain4 creates a chain of exactly 4 number of functions that will be executed in order.
-func Chain4[A any, B any, C any, D any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error)) mw4[A, B, C, D] {
-	return mw4[A, B, C, D]{f1, f2, f3, f4}
+func Chain4[A any, B any, C any, D any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error)) chain4[A, B, C, D] {
+	return chain4[A, B, C, D]{f1, f2, f3, f4}
 }
 
-type mw5[A any, B any, C any, D any, E any] struct {
+type chain5[A any, B any, C any, D any, E any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 	f3 func(http.ResponseWriter, *http.Request) (C, error)
@@ -122,39 +210,61 @@ type mw5[A any, B any, C any, D any, E any] struct {
 	f5 func(http.ResponseWriter, *http.Request) (E, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw5[A, B, C, D, E]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E)) http.HandlerFunc {
+type chainHandle5[A any, B any, C any, D any, E any] struct {
+	chain   chain5[A, B, C, D, E]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain5[A, B, C, D, E]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E) error) chainHandle5[A, B, C, D, E] {
+	return chainHandle5[A, B, C, D, E]{chain, handler}
+}
+
+func (chainHandle chainHandle5[A, B, C, D, E]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle5[A, B, C, D, E]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle5[A, B, C, D, E]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e)
 	}
 }
 
 // Chain5 creates a chain of exactly 5 number of functions that will be executed in order.
-func Chain5[A any, B any, C any, D any, E any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error)) mw5[A, B, C, D, E] {
-	return mw5[A, B, C, D, E]{f1, f2, f3, f4, f5}
+func Chain5[A any, B any, C any, D any, E any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error)) chain5[A, B, C, D, E] {
+	return chain5[A, B, C, D, E]{f1, f2, f3, f4, f5}
 }
 
-type mw6[A any, B any, C any, D any, E any, F any] struct {
+type chain6[A any, B any, C any, D any, E any, F any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 	f3 func(http.ResponseWriter, *http.Request) (C, error)
@@ -163,43 +273,65 @@ type mw6[A any, B any, C any, D any, E any, F any] struct {
 	f6 func(http.ResponseWriter, *http.Request) (F, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw6[A, B, C, D, E, F]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F)) http.HandlerFunc {
+type chainHandle6[A any, B any, C any, D any, E any, F any] struct {
+	chain   chain6[A, B, C, D, E, F]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain6[A, B, C, D, E, F]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F) error) chainHandle6[A, B, C, D, E, F] {
+	return chainHandle6[A, B, C, D, E, F]{chain, handler}
+}
+
+func (chainHandle chainHandle6[A, B, C, D, E, F]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle6[A, B, C, D, E, F]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle6[A, B, C, D, E, F]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f)
 	}
 }
 
 // Chain6 creates a chain of exactly 6 number of functions that will be executed in order.
-func Chain6[A any, B any, C any, D any, E any, F any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error)) mw6[A, B, C, D, E, F] {
-	return mw6[A, B, C, D, E, F]{f1, f2, f3, f4, f5, f6}
+func Chain6[A any, B any, C any, D any, E any, F any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error)) chain6[A, B, C, D, E, F] {
+	return chain6[A, B, C, D, E, F]{f1, f2, f3, f4, f5, f6}
 }
 
-type mw7[A any, B any, C any, D any, E any, F any, G any] struct {
+type chain7[A any, B any, C any, D any, E any, F any, G any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 	f3 func(http.ResponseWriter, *http.Request) (C, error)
@@ -209,47 +341,69 @@ type mw7[A any, B any, C any, D any, E any, F any, G any] struct {
 	f7 func(http.ResponseWriter, *http.Request) (G, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw7[A, B, C, D, E, F, G]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G)) http.HandlerFunc {
+type chainHandle7[A any, B any, C any, D any, E any, F any, G any] struct {
+	chain   chain7[A, B, C, D, E, F, G]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain7[A, B, C, D, E, F, G]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G) error) chainHandle7[A, B, C, D, E, F, G] {
+	return chainHandle7[A, B, C, D, E, F, G]{chain, handler}
+}
+
+func (chainHandle chainHandle7[A, B, C, D, E, F, G]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle7[A, B, C, D, E, F, G]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle7[A, B, C, D, E, F, G]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g)
 	}
 }
 
 // Chain7 creates a chain of exactly 7 number of functions that will be executed in order.
-func Chain7[A any, B any, C any, D any, E any, F any, G any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error)) mw7[A, B, C, D, E, F, G] {
-	return mw7[A, B, C, D, E, F, G]{f1, f2, f3, f4, f5, f6, f7}
+func Chain7[A any, B any, C any, D any, E any, F any, G any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error)) chain7[A, B, C, D, E, F, G] {
+	return chain7[A, B, C, D, E, F, G]{f1, f2, f3, f4, f5, f6, f7}
 }
 
-type mw8[A any, B any, C any, D any, E any, F any, G any, H any] struct {
+type chain8[A any, B any, C any, D any, E any, F any, G any, H any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 	f3 func(http.ResponseWriter, *http.Request) (C, error)
@@ -260,51 +414,73 @@ type mw8[A any, B any, C any, D any, E any, F any, G any, H any] struct {
 	f8 func(http.ResponseWriter, *http.Request) (H, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw8[A, B, C, D, E, F, G, H]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H)) http.HandlerFunc {
+type chainHandle8[A any, B any, C any, D any, E any, F any, G any, H any] struct {
+	chain   chain8[A, B, C, D, E, F, G, H]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain8[A, B, C, D, E, F, G, H]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H) error) chainHandle8[A, B, C, D, E, F, G, H] {
+	return chainHandle8[A, B, C, D, E, F, G, H]{chain, handler}
+}
+
+func (chainHandle chainHandle8[A, B, C, D, E, F, G, H]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle8[A, B, C, D, E, F, G, H]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle8[A, B, C, D, E, F, G, H]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h)
 	}
 }
 
 // Chain8 creates a chain of exactly 8 number of functions that will be executed in order.
-func Chain8[A any, B any, C any, D any, E any, F any, G any, H any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error)) mw8[A, B, C, D, E, F, G, H] {
-	return mw8[A, B, C, D, E, F, G, H]{f1, f2, f3, f4, f5, f6, f7, f8}
+func Chain8[A any, B any, C any, D any, E any, F any, G any, H any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error)) chain8[A, B, C, D, E, F, G, H] {
+	return chain8[A, B, C, D, E, F, G, H]{f1, f2, f3, f4, f5, f6, f7, f8}
 }
 
-type mw9[A any, B any, C any, D any, E any, F any, G any, H any, I any] struct {
+type chain9[A any, B any, C any, D any, E any, F any, G any, H any, I any] struct {
 	f1 func(http.ResponseWriter, *http.Request) (A, error)
 	f2 func(http.ResponseWriter, *http.Request) (B, error)
 	f3 func(http.ResponseWriter, *http.Request) (C, error)
@@ -316,55 +492,77 @@ type mw9[A any, B any, C any, D any, E any, F any, G any, H any, I any] struct {
 	f9 func(http.ResponseWriter, *http.Request) (I, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw9[A, B, C, D, E, F, G, H, I]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I)) http.HandlerFunc {
+type chainHandle9[A any, B any, C any, D any, E any, F any, G any, H any, I any] struct {
+	chain   chain9[A, B, C, D, E, F, G, H, I]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain9[A, B, C, D, E, F, G, H, I]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I) error) chainHandle9[A, B, C, D, E, F, G, H, I] {
+	return chainHandle9[A, B, C, D, E, F, G, H, I]{chain, handler}
+}
+
+func (chainHandle chainHandle9[A, B, C, D, E, F, G, H, I]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle9[A, B, C, D, E, F, G, H, I]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle9[A, B, C, D, E, F, G, H, I]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i)
 	}
 }
 
 // Chain9 creates a chain of exactly 9 number of functions that will be executed in order.
-func Chain9[A any, B any, C any, D any, E any, F any, G any, H any, I any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error)) mw9[A, B, C, D, E, F, G, H, I] {
-	return mw9[A, B, C, D, E, F, G, H, I]{f1, f2, f3, f4, f5, f6, f7, f8, f9}
+func Chain9[A any, B any, C any, D any, E any, F any, G any, H any, I any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error)) chain9[A, B, C, D, E, F, G, H, I] {
+	return chain9[A, B, C, D, E, F, G, H, I]{f1, f2, f3, f4, f5, f6, f7, f8, f9}
 }
 
-type mw10[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any] struct {
+type chain10[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -377,59 +575,81 @@ type mw10[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any] 
 	f10 func(http.ResponseWriter, *http.Request) (J, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw10[A, B, C, D, E, F, G, H, I, J]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J)) http.HandlerFunc {
+type chainHandle10[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any] struct {
+	chain   chain10[A, B, C, D, E, F, G, H, I, J]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain10[A, B, C, D, E, F, G, H, I, J]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J) error) chainHandle10[A, B, C, D, E, F, G, H, I, J] {
+	return chainHandle10[A, B, C, D, E, F, G, H, I, J]{chain, handler}
+}
+
+func (chainHandle chainHandle10[A, B, C, D, E, F, G, H, I, J]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle10[A, B, C, D, E, F, G, H, I, J]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle10[A, B, C, D, E, F, G, H, I, J]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j)
 	}
 }
 
 // Chain10 creates a chain of exactly 10 number of functions that will be executed in order.
-func Chain10[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error)) mw10[A, B, C, D, E, F, G, H, I, J] {
-	return mw10[A, B, C, D, E, F, G, H, I, J]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10}
+func Chain10[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error)) chain10[A, B, C, D, E, F, G, H, I, J] {
+	return chain10[A, B, C, D, E, F, G, H, I, J]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10}
 }
 
-type mw11[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any] struct {
+type chain11[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -443,63 +663,85 @@ type mw11[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f11 func(http.ResponseWriter, *http.Request) (K, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw11[A, B, C, D, E, F, G, H, I, J, K]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K)) http.HandlerFunc {
+type chainHandle11[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any] struct {
+	chain   chain11[A, B, C, D, E, F, G, H, I, J, K]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain11[A, B, C, D, E, F, G, H, I, J, K]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K) error) chainHandle11[A, B, C, D, E, F, G, H, I, J, K] {
+	return chainHandle11[A, B, C, D, E, F, G, H, I, J, K]{chain, handler}
+}
+
+func (chainHandle chainHandle11[A, B, C, D, E, F, G, H, I, J, K]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle11[A, B, C, D, E, F, G, H, I, J, K]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle11[A, B, C, D, E, F, G, H, I, J, K]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k)
 	}
 }
 
 // Chain11 creates a chain of exactly 11 number of functions that will be executed in order.
-func Chain11[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error)) mw11[A, B, C, D, E, F, G, H, I, J, K] {
-	return mw11[A, B, C, D, E, F, G, H, I, J, K]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11}
+func Chain11[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error)) chain11[A, B, C, D, E, F, G, H, I, J, K] {
+	return chain11[A, B, C, D, E, F, G, H, I, J, K]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11}
 }
 
-type mw12[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any] struct {
+type chain12[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -514,67 +756,89 @@ type mw12[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f12 func(http.ResponseWriter, *http.Request) (L, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw12[A, B, C, D, E, F, G, H, I, J, K, L]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L)) http.HandlerFunc {
+type chainHandle12[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any] struct {
+	chain   chain12[A, B, C, D, E, F, G, H, I, J, K, L]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain12[A, B, C, D, E, F, G, H, I, J, K, L]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L) error) chainHandle12[A, B, C, D, E, F, G, H, I, J, K, L] {
+	return chainHandle12[A, B, C, D, E, F, G, H, I, J, K, L]{chain, handler}
+}
+
+func (chainHandle chainHandle12[A, B, C, D, E, F, G, H, I, J, K, L]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle12[A, B, C, D, E, F, G, H, I, J, K, L]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle12[A, B, C, D, E, F, G, H, I, J, K, L]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 	}
 }
 
 // Chain12 creates a chain of exactly 12 number of functions that will be executed in order.
-func Chain12[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error)) mw12[A, B, C, D, E, F, G, H, I, J, K, L] {
-	return mw12[A, B, C, D, E, F, G, H, I, J, K, L]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12}
+func Chain12[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error)) chain12[A, B, C, D, E, F, G, H, I, J, K, L] {
+	return chain12[A, B, C, D, E, F, G, H, I, J, K, L]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12}
 }
 
-type mw13[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any] struct {
+type chain13[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -590,71 +854,93 @@ type mw13[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f13 func(http.ResponseWriter, *http.Request) (M, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw13[A, B, C, D, E, F, G, H, I, J, K, L, M]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M)) http.HandlerFunc {
+type chainHandle13[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any] struct {
+	chain   chain13[A, B, C, D, E, F, G, H, I, J, K, L, M]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain13[A, B, C, D, E, F, G, H, I, J, K, L, M]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M) error) chainHandle13[A, B, C, D, E, F, G, H, I, J, K, L, M] {
+	return chainHandle13[A, B, C, D, E, F, G, H, I, J, K, L, M]{chain, handler}
+}
+
+func (chainHandle chainHandle13[A, B, C, D, E, F, G, H, I, J, K, L, M]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle13[A, B, C, D, E, F, G, H, I, J, K, L, M]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle13[A, B, C, D, E, F, G, H, I, J, K, L, M]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 	}
 }
 
 // Chain13 creates a chain of exactly 13 number of functions that will be executed in order.
-func Chain13[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error)) mw13[A, B, C, D, E, F, G, H, I, J, K, L, M] {
-	return mw13[A, B, C, D, E, F, G, H, I, J, K, L, M]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13}
+func Chain13[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error)) chain13[A, B, C, D, E, F, G, H, I, J, K, L, M] {
+	return chain13[A, B, C, D, E, F, G, H, I, J, K, L, M]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13}
 }
 
-type mw14[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any] struct {
+type chain14[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -671,75 +957,97 @@ type mw14[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f14 func(http.ResponseWriter, *http.Request) (N, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N)) http.HandlerFunc {
+type chainHandle14[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any] struct {
+	chain   chain14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N) error) chainHandle14[A, B, C, D, E, F, G, H, I, J, K, L, M, N] {
+	return chainHandle14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]{chain, handler}
+}
+
+func (chainHandle chainHandle14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 	}
 }
 
 // Chain14 creates a chain of exactly 14 number of functions that will be executed in order.
-func Chain14[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error)) mw14[A, B, C, D, E, F, G, H, I, J, K, L, M, N] {
-	return mw14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14}
+func Chain14[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error)) chain14[A, B, C, D, E, F, G, H, I, J, K, L, M, N] {
+	return chain14[A, B, C, D, E, F, G, H, I, J, K, L, M, N]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14}
 }
 
-type mw15[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any] struct {
+type chain15[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -757,79 +1065,101 @@ type mw15[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f15 func(http.ResponseWriter, *http.Request) (O, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)) http.HandlerFunc {
+type chainHandle15[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any] struct {
+	chain   chain15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) error) chainHandle15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O] {
+	return chainHandle15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]{chain, handler}
+}
+
+func (chainHandle chainHandle15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 	}
 }
 
 // Chain15 creates a chain of exactly 15 number of functions that will be executed in order.
-func Chain15[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error)) mw15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O] {
-	return mw15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15}
+func Chain15[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error)) chain15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O] {
+	return chain15[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15}
 }
 
-type mw16[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any] struct {
+type chain16[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -848,83 +1178,105 @@ type mw16[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f16 func(http.ResponseWriter, *http.Request) (P, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)) http.HandlerFunc {
+type chainHandle16[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any] struct {
+	chain   chain16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) error) chainHandle16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P] {
+	return chainHandle16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]{chain, handler}
+}
+
+func (chainHandle chainHandle16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 	}
 }
 
 // Chain16 creates a chain of exactly 16 number of functions that will be executed in order.
-func Chain16[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error)) mw16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P] {
-	return mw16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16}
+func Chain16[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error)) chain16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P] {
+	return chain16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16}
 }
 
-type mw17[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any] struct {
+type chain17[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -944,87 +1296,109 @@ type mw17[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f17 func(http.ResponseWriter, *http.Request) (Q, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)) http.HandlerFunc {
+type chainHandle17[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any] struct {
+	chain   chain17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) error) chainHandle17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q] {
+	return chainHandle17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]{chain, handler}
+}
+
+func (chainHandle chainHandle17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 	}
 }
 
 // Chain17 creates a chain of exactly 17 number of functions that will be executed in order.
-func Chain17[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error)) mw17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q] {
-	return mw17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17}
+func Chain17[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error)) chain17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q] {
+	return chain17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17}
 }
 
-type mw18[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any] struct {
+type chain18[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1045,91 +1419,113 @@ type mw18[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f18 func(http.ResponseWriter, *http.Request) (R, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)) http.HandlerFunc {
+type chainHandle18[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any] struct {
+	chain   chain18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) error) chainHandle18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R] {
+	return chainHandle18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]{chain, handler}
+}
+
+func (chainHandle chainHandle18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 	}
 }
 
 // Chain18 creates a chain of exactly 18 number of functions that will be executed in order.
-func Chain18[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error)) mw18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R] {
-	return mw18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18}
+func Chain18[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error)) chain18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R] {
+	return chain18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18}
 }
 
-type mw19[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any] struct {
+type chain19[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1151,95 +1547,117 @@ type mw19[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f19 func(http.ResponseWriter, *http.Request) (S, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)) http.HandlerFunc {
+type chainHandle19[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any] struct {
+	chain   chain19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) error) chainHandle19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S] {
+	return chainHandle19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]{chain, handler}
+}
+
+func (chainHandle chainHandle19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 	}
 }
 
 // Chain19 creates a chain of exactly 19 number of functions that will be executed in order.
-func Chain19[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error)) mw19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S] {
-	return mw19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19}
+func Chain19[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error)) chain19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S] {
+	return chain19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19}
 }
 
-type mw20[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any] struct {
+type chain20[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1262,99 +1680,121 @@ type mw20[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f20 func(http.ResponseWriter, *http.Request) (T, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)) http.HandlerFunc {
+type chainHandle20[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any] struct {
+	chain   chain20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) error) chainHandle20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T] {
+	return chainHandle20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]{chain, handler}
+}
+
+func (chainHandle chainHandle20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	t, err := chainHandle.chain.f20(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		t, err := middleware.f20(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 	}
 }
 
 // Chain20 creates a chain of exactly 20 number of functions that will be executed in order.
-func Chain20[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error)) mw20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T] {
-	return mw20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20}
+func Chain20[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error)) chain20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T] {
+	return chain20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20}
 }
 
-type mw21[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any] struct {
+type chain21[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1378,103 +1818,125 @@ type mw21[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f21 func(http.ResponseWriter, *http.Request) (U, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)) http.HandlerFunc {
+type chainHandle21[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any] struct {
+	chain   chain21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) error) chainHandle21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U] {
+	return chainHandle21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]{chain, handler}
+}
+
+func (chainHandle chainHandle21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	t, err := chainHandle.chain.f20(response, request)
+	if nil != err {
+		return nil
+	}
+	u, err := chainHandle.chain.f21(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		t, err := middleware.f20(response, request)
-		if nil != err {
-			return
-		}
-		u, err := middleware.f21(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
 	}
 }
 
 // Chain21 creates a chain of exactly 21 number of functions that will be executed in order.
-func Chain21[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error)) mw21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U] {
-	return mw21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21}
+func Chain21[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error)) chain21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U] {
+	return chain21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21}
 }
 
-type mw22[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any] struct {
+type chain22[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1499,107 +1961,129 @@ type mw22[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f22 func(http.ResponseWriter, *http.Request) (V, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)) http.HandlerFunc {
+type chainHandle22[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any] struct {
+	chain   chain22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) error) chainHandle22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V] {
+	return chainHandle22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]{chain, handler}
+}
+
+func (chainHandle chainHandle22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	t, err := chainHandle.chain.f20(response, request)
+	if nil != err {
+		return nil
+	}
+	u, err := chainHandle.chain.f21(response, request)
+	if nil != err {
+		return nil
+	}
+	v, err := chainHandle.chain.f22(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		t, err := middleware.f20(response, request)
-		if nil != err {
-			return
-		}
-		u, err := middleware.f21(response, request)
-		if nil != err {
-			return
-		}
-		v, err := middleware.f22(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
 	}
 }
 
 // Chain22 creates a chain of exactly 22 number of functions that will be executed in order.
-func Chain22[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error)) mw22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V] {
-	return mw22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22}
+func Chain22[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error)) chain22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V] {
+	return chain22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22}
 }
 
-type mw23[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any] struct {
+type chain23[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1625,111 +2109,133 @@ type mw23[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f23 func(http.ResponseWriter, *http.Request) (W, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W)) http.HandlerFunc {
+type chainHandle23[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any] struct {
+	chain   chain23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W) error) chainHandle23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W] {
+	return chainHandle23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]{chain, handler}
+}
+
+func (chainHandle chainHandle23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	t, err := chainHandle.chain.f20(response, request)
+	if nil != err {
+		return nil
+	}
+	u, err := chainHandle.chain.f21(response, request)
+	if nil != err {
+		return nil
+	}
+	v, err := chainHandle.chain.f22(response, request)
+	if nil != err {
+		return nil
+	}
+	w, err := chainHandle.chain.f23(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		t, err := middleware.f20(response, request)
-		if nil != err {
-			return
-		}
-		u, err := middleware.f21(response, request)
-		if nil != err {
-			return
-		}
-		v, err := middleware.f22(response, request)
-		if nil != err {
-			return
-		}
-		w, err := middleware.f23(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
 	}
 }
 
 // Chain23 creates a chain of exactly 23 number of functions that will be executed in order.
-func Chain23[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error)) mw23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W] {
-	return mw23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23}
+func Chain23[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error)) chain23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W] {
+	return chain23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23}
 }
 
-type mw24[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any] struct {
+type chain24[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1756,115 +2262,137 @@ type mw24[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f24 func(http.ResponseWriter, *http.Request) (X, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X)) http.HandlerFunc {
+type chainHandle24[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any] struct {
+	chain   chain24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X) error) chainHandle24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X] {
+	return chainHandle24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]{chain, handler}
+}
+
+func (chainHandle chainHandle24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	t, err := chainHandle.chain.f20(response, request)
+	if nil != err {
+		return nil
+	}
+	u, err := chainHandle.chain.f21(response, request)
+	if nil != err {
+		return nil
+	}
+	v, err := chainHandle.chain.f22(response, request)
+	if nil != err {
+		return nil
+	}
+	w, err := chainHandle.chain.f23(response, request)
+	if nil != err {
+		return nil
+	}
+	x, err := chainHandle.chain.f24(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		t, err := middleware.f20(response, request)
-		if nil != err {
-			return
-		}
-		u, err := middleware.f21(response, request)
-		if nil != err {
-			return
-		}
-		v, err := middleware.f22(response, request)
-		if nil != err {
-			return
-		}
-		w, err := middleware.f23(response, request)
-		if nil != err {
-			return
-		}
-		x, err := middleware.f24(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
 	}
 }
 
 // Chain24 creates a chain of exactly 24 number of functions that will be executed in order.
-func Chain24[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error), f24 func(http.ResponseWriter, *http.Request) (X, error)) mw24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X] {
-	return mw24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24}
+func Chain24[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error), f24 func(http.ResponseWriter, *http.Request) (X, error)) chain24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X] {
+	return chain24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24}
 }
 
-type mw25[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any] struct {
+type chain25[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -1892,119 +2420,141 @@ type mw25[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f25 func(http.ResponseWriter, *http.Request) (Y, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y)) http.HandlerFunc {
+type chainHandle25[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any] struct {
+	chain   chain25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y) error) chainHandle25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y] {
+	return chainHandle25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]{chain, handler}
+}
+
+func (chainHandle chainHandle25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	t, err := chainHandle.chain.f20(response, request)
+	if nil != err {
+		return nil
+	}
+	u, err := chainHandle.chain.f21(response, request)
+	if nil != err {
+		return nil
+	}
+	v, err := chainHandle.chain.f22(response, request)
+	if nil != err {
+		return nil
+	}
+	w, err := chainHandle.chain.f23(response, request)
+	if nil != err {
+		return nil
+	}
+	x, err := chainHandle.chain.f24(response, request)
+	if nil != err {
+		return nil
+	}
+	y, err := chainHandle.chain.f25(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		t, err := middleware.f20(response, request)
-		if nil != err {
-			return
-		}
-		u, err := middleware.f21(response, request)
-		if nil != err {
-			return
-		}
-		v, err := middleware.f22(response, request)
-		if nil != err {
-			return
-		}
-		w, err := middleware.f23(response, request)
-		if nil != err {
-			return
-		}
-		x, err := middleware.f24(response, request)
-		if nil != err {
-			return
-		}
-		y, err := middleware.f25(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y)
 	}
 }
 
 // Chain25 creates a chain of exactly 25 number of functions that will be executed in order.
-func Chain25[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error), f24 func(http.ResponseWriter, *http.Request) (X, error), f25 func(http.ResponseWriter, *http.Request) (Y, error)) mw25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y] {
-	return mw25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25}
+func Chain25[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error), f24 func(http.ResponseWriter, *http.Request) (X, error), f25 func(http.ResponseWriter, *http.Request) (Y, error)) chain25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y] {
+	return chain25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25}
 }
 
-type mw26[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any, Z any] struct {
+type chain26[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any, Z any] struct {
 	f1  func(http.ResponseWriter, *http.Request) (A, error)
 	f2  func(http.ResponseWriter, *http.Request) (B, error)
 	f3  func(http.ResponseWriter, *http.Request) (C, error)
@@ -2033,118 +2583,140 @@ type mw26[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, 
 	f26 func(http.ResponseWriter, *http.Request) (Z, error)
 }
 
-// Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.
-func (middleware mw26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z)) http.HandlerFunc {
+type chainHandle26[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any, Z any] struct {
+	chain   chain26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]
+	handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z) error
+}
+
+// Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.
+func (chain chain26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) Then(handler func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z) error) chainHandle26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z] {
+	return chainHandle26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]{chain, handler}
+}
+
+func (chainHandle chainHandle26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) serveHTTP(response http.ResponseWriter, request *http.Request) error {
+	a, err := chainHandle.chain.f1(response, request)
+	if nil != err {
+		return nil
+	}
+	b, err := chainHandle.chain.f2(response, request)
+	if nil != err {
+		return nil
+	}
+	c, err := chainHandle.chain.f3(response, request)
+	if nil != err {
+		return nil
+	}
+	d, err := chainHandle.chain.f4(response, request)
+	if nil != err {
+		return nil
+	}
+	e, err := chainHandle.chain.f5(response, request)
+	if nil != err {
+		return nil
+	}
+	f, err := chainHandle.chain.f6(response, request)
+	if nil != err {
+		return nil
+	}
+	g, err := chainHandle.chain.f7(response, request)
+	if nil != err {
+		return nil
+	}
+	h, err := chainHandle.chain.f8(response, request)
+	if nil != err {
+		return nil
+	}
+	i, err := chainHandle.chain.f9(response, request)
+	if nil != err {
+		return nil
+	}
+	j, err := chainHandle.chain.f10(response, request)
+	if nil != err {
+		return nil
+	}
+	k, err := chainHandle.chain.f11(response, request)
+	if nil != err {
+		return nil
+	}
+	l, err := chainHandle.chain.f12(response, request)
+	if nil != err {
+		return nil
+	}
+	m, err := chainHandle.chain.f13(response, request)
+	if nil != err {
+		return nil
+	}
+	n, err := chainHandle.chain.f14(response, request)
+	if nil != err {
+		return nil
+	}
+	o, err := chainHandle.chain.f15(response, request)
+	if nil != err {
+		return nil
+	}
+	p, err := chainHandle.chain.f16(response, request)
+	if nil != err {
+		return nil
+	}
+	q, err := chainHandle.chain.f17(response, request)
+	if nil != err {
+		return nil
+	}
+	r, err := chainHandle.chain.f18(response, request)
+	if nil != err {
+		return nil
+	}
+	s, err := chainHandle.chain.f19(response, request)
+	if nil != err {
+		return nil
+	}
+	t, err := chainHandle.chain.f20(response, request)
+	if nil != err {
+		return nil
+	}
+	u, err := chainHandle.chain.f21(response, request)
+	if nil != err {
+		return nil
+	}
+	v, err := chainHandle.chain.f22(response, request)
+	if nil != err {
+		return nil
+	}
+	w, err := chainHandle.chain.f23(response, request)
+	if nil != err {
+		return nil
+	}
+	x, err := chainHandle.chain.f24(response, request)
+	if nil != err {
+		return nil
+	}
+	y, err := chainHandle.chain.f25(response, request)
+	if nil != err {
+		return nil
+	}
+	z, err := chainHandle.chain.f26(response, request)
+	if nil != err {
+		return nil
+	}
+	return chainHandle.handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)
+}
+
+// ServeHTTP satisfies [net/http.Handler].
+func (chainHandle chainHandle26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	_ = chainHandle.serveHTTP(response, request)
+}
+
+// Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.
+func (chainHandle chainHandle26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) Finally(handle func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
-		a, err := middleware.f1(response, request)
+		err := chainHandle.serveHTTP(response, request)
 		if nil != err {
-			return
+			handle(response, request, err)
 		}
-		b, err := middleware.f2(response, request)
-		if nil != err {
-			return
-		}
-		c, err := middleware.f3(response, request)
-		if nil != err {
-			return
-		}
-		d, err := middleware.f4(response, request)
-		if nil != err {
-			return
-		}
-		e, err := middleware.f5(response, request)
-		if nil != err {
-			return
-		}
-		f, err := middleware.f6(response, request)
-		if nil != err {
-			return
-		}
-		g, err := middleware.f7(response, request)
-		if nil != err {
-			return
-		}
-		h, err := middleware.f8(response, request)
-		if nil != err {
-			return
-		}
-		i, err := middleware.f9(response, request)
-		if nil != err {
-			return
-		}
-		j, err := middleware.f10(response, request)
-		if nil != err {
-			return
-		}
-		k, err := middleware.f11(response, request)
-		if nil != err {
-			return
-		}
-		l, err := middleware.f12(response, request)
-		if nil != err {
-			return
-		}
-		m, err := middleware.f13(response, request)
-		if nil != err {
-			return
-		}
-		n, err := middleware.f14(response, request)
-		if nil != err {
-			return
-		}
-		o, err := middleware.f15(response, request)
-		if nil != err {
-			return
-		}
-		p, err := middleware.f16(response, request)
-		if nil != err {
-			return
-		}
-		q, err := middleware.f17(response, request)
-		if nil != err {
-			return
-		}
-		r, err := middleware.f18(response, request)
-		if nil != err {
-			return
-		}
-		s, err := middleware.f19(response, request)
-		if nil != err {
-			return
-		}
-		t, err := middleware.f20(response, request)
-		if nil != err {
-			return
-		}
-		u, err := middleware.f21(response, request)
-		if nil != err {
-			return
-		}
-		v, err := middleware.f22(response, request)
-		if nil != err {
-			return
-		}
-		w, err := middleware.f23(response, request)
-		if nil != err {
-			return
-		}
-		x, err := middleware.f24(response, request)
-		if nil != err {
-			return
-		}
-		y, err := middleware.f25(response, request)
-		if nil != err {
-			return
-		}
-		z, err := middleware.f26(response, request)
-		if nil != err {
-			return
-		}
-		handler(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)
 	}
 }
 
 // Chain26 creates a chain of exactly 26 number of functions that will be executed in order.
-func Chain26[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any, Z any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error), f24 func(http.ResponseWriter, *http.Request) (X, error), f25 func(http.ResponseWriter, *http.Request) (Y, error), f26 func(http.ResponseWriter, *http.Request) (Z, error)) mw26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z] {
-	return mw26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26}
+func Chain26[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any, Z any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request) (B, error), f3 func(http.ResponseWriter, *http.Request) (C, error), f4 func(http.ResponseWriter, *http.Request) (D, error), f5 func(http.ResponseWriter, *http.Request) (E, error), f6 func(http.ResponseWriter, *http.Request) (F, error), f7 func(http.ResponseWriter, *http.Request) (G, error), f8 func(http.ResponseWriter, *http.Request) (H, error), f9 func(http.ResponseWriter, *http.Request) (I, error), f10 func(http.ResponseWriter, *http.Request) (J, error), f11 func(http.ResponseWriter, *http.Request) (K, error), f12 func(http.ResponseWriter, *http.Request) (L, error), f13 func(http.ResponseWriter, *http.Request) (M, error), f14 func(http.ResponseWriter, *http.Request) (N, error), f15 func(http.ResponseWriter, *http.Request) (O, error), f16 func(http.ResponseWriter, *http.Request) (P, error), f17 func(http.ResponseWriter, *http.Request) (Q, error), f18 func(http.ResponseWriter, *http.Request) (R, error), f19 func(http.ResponseWriter, *http.Request) (S, error), f20 func(http.ResponseWriter, *http.Request) (T, error), f21 func(http.ResponseWriter, *http.Request) (U, error), f22 func(http.ResponseWriter, *http.Request) (V, error), f23 func(http.ResponseWriter, *http.Request) (W, error), f24 func(http.ResponseWriter, *http.Request) (X, error), f25 func(http.ResponseWriter, *http.Request) (Y, error), f26 func(http.ResponseWriter, *http.Request) (Z, error)) chain26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z] {
+	return chain26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26}
 }

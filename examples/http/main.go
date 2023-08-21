@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/xeptore/middle/v2"
+	"github.com/xeptore/middle/v3"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/path", middle.Chain3(m1, m2, m3).Then(handler))
+	mux.Handle("/path-that-ignores-handler-error", middle.Chain3(m1, m2, m3).Then(handler))
+	mux.Handle("/path-that-handles-handler-error", middle.Chain3(m1, m2, m3).Then(handler).Finally(unexpectedErrHandle))
 	http.ListenAndServe("127.0.0.1:1080", mux)
 }
 
@@ -28,6 +30,13 @@ func m3(http.ResponseWriter, *http.Request) (bool, error) {
 	return true, nil
 }
 
-func handler(w http.ResponseWriter, r *http.Request, s string, i int, b bool) {
+func handler(w http.ResponseWriter, r *http.Request, s string, i int, b bool) error {
 	w.Write([]byte(fmt.Sprintf("%s\n%d\n%v", s, i, b)))
+	return nil
+}
+
+func unexpectedErrHandle(w http.ResponseWriter, r *http.Request, err error) {
+	log.Printf("unexpected error: %v", err)
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("internal error!"))
 }

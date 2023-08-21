@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	flag.StringVar(&pkg, "pkg", "github.com/xeptore/middle/v2", "generated file package name")
+	flag.StringVar(&pkg, "pkg", "github.com/xeptore/middle/v3", "generated file package name")
 	flag.StringVar(&filename, "file", "./middle.go", "name of the file to write generated code in")
 	flag.IntVar(&n, "n", 26, "number of wares")
 }
@@ -26,8 +26,12 @@ var alphabets = []string{
 	"U", "V", "W", "X", "Y", "Z",
 }
 
-func structName(i int) string {
-	return fmt.Sprintf("mw%d", i)
+func chainStructName(i int) string {
+	return fmt.Sprintf("chain%d", i)
+}
+
+func chainHandleStructName(i int) string {
+	return fmt.Sprintf("chainHandle%d", i)
 }
 
 func funcName(i int) string {
@@ -48,12 +52,38 @@ func parameterGenericTypes(i int) []Code {
 
 func fnParams(i int) []Code {
 	return lo.Times(i, func(j int) Code {
-		return Id(fnName(j+1)).Func().Params(Qual("net/http", "ResponseWriter"), Add(Op("*")).Qual("net/http", "Request")).Parens(List(Id(alphabets[j]), Error()))
+		return Id(fnName(j+1)).
+			Func().
+			Params(
+				Qual("net/http", "ResponseWriter"),
+				Add(Op("*")).Qual("net/http", "Request"),
+			).
+			Parens(
+				List(
+					Id(alphabets[j]),
+					Error(),
+				),
+			)
 	})
 }
 
 func fnName(n int) string {
 	return fmt.Sprintf("f%d", n)
+}
+
+func handlerFuncType(i int) Code {
+	return Id("handler").
+		Func().
+		Params(
+			append(
+				[]Code{
+					Qual("net/http", "ResponseWriter"),
+					Add(Op("*")).Qual("net/http", "Request"),
+				},
+				parameterGenericTypes(i)...,
+			)...,
+		).
+		Error()
 }
 
 var (
@@ -83,25 +113,119 @@ func main() {
 	for i := 1; i <= n; i++ {
 		f.
 			Type().
-			Id(structName(i)).
+			Id(chainStructName(i)).
 			Types(genericTypes(i)...).
 			Struct(fnParams(i)...)
-		f.Commentf("Then executes handler once all middleware functions are executed in order. Chain of functions execution stops if any of the middleware functions returns a non-nil error.")
+
+		f.Line()
+
+		f.
+			Type().
+			Id(chainHandleStructName(i)).
+			Types(genericTypes(i)...).
+			Struct(
+				Id("chain").Id(chainStructName(i)).Types(parameterGenericTypes(i)...),
+				handlerFuncType(i),
+			)
+
+		f.Comment("Then executes handler once all middleware functions are executed in order as [net/http.Handler]. Chain of functions execution stops if any of the middleware functions returns a non-nil error. It ignores any error returned from handler.")
 		f.
 			Func().
-			Params(Id("middleware").Id(structName(i)).Types(parameterGenericTypes(i)...)).
+			Params(Id("chain").Id(chainStructName(i)).Types(parameterGenericTypes(i)...)).
 			Id("Then").
+			Params(handlerFuncType(i)).
+			Id(chainHandleStructName(i)).
+			Types(parameterGenericTypes(i)...).
+			Block(
+				Return(
+					Id(chainHandleStructName(i)).
+						Types(parameterGenericTypes(i)...).
+						Values(
+							Id("chain"),
+							Id("handler"),
+						),
+				),
+			)
+
+		f.Line()
+
+		f.
+			Func().
+			Params(Id("chainHandle").Id(chainHandleStructName(i)).Types(parameterGenericTypes(i)...)).
+			Id("serveHTTP").
 			Params(
-				Id("handler").
+				Id("response").Qual("net/http", "ResponseWriter"),
+				Id("request").Add(Op("*")).Qual("net/http", "Request"),
+			).
+			Error().
+			Block(
+				append(
+					lo.Flatten(
+						lo.Times(i, func(j int) []Code {
+							return []Code{
+								List(
+									Id(genericTypeParamName(j)),
+									Err(),
+								).
+									Op(":=").
+									Id("chainHandle").
+									Dot("chain").
+									Dot(fnName(j+1)).
+									Call(
+										Id("response"),
+										Id("request"),
+									),
+								If(
+									Nil().
+										Op("!=").
+										Err(),
+								).
+									Block(
+										Return(Nil()),
+									),
+							}
+						}),
+					),
+					Return(
+						Id("chainHandle").Dot("handler").Call(
+							append(
+								[]Code{
+									Id("response"),
+									Id("request"),
+								},
+								lo.Times(i, func(j int) Code { return Id(genericTypeParamName(j)) })...,
+							)...,
+						)),
+				)...,
+			)
+
+		f.Line()
+
+		f.Comment("ServeHTTP satisfies [net/http.Handler].")
+		f.
+			Func().
+			Params(Id("chainHandle").Id(chainHandleStructName(i)).Types(parameterGenericTypes(i)...)).
+			Id("ServeHTTP").
+			Params(
+				Id("response").Qual("net/http", "ResponseWriter"),
+				Id("request").Add(Op("*")).Qual("net/http", "Request"),
+			).
+			Block(Id("_").Op("=").Id("chainHandle").Dot("serveHTTP").Call(Id("response"), Id("request")))
+
+		f.Line()
+
+		f.Comment("Finally executes handler registered via [Then] similar to [Then], and executes handle only if returned error from handler is not nil.")
+		f.
+			Func().
+			Params(Id("chainHandle").Id(chainHandleStructName(i)).Types(parameterGenericTypes(i)...)).
+			Id("Finally").
+			Params(
+				Id("handle").
 					Func().
 					Params(
-						append(
-							[]Code{
-								Qual("net/http", "ResponseWriter"),
-								Add(Op("*")).Qual("net/http", "Request"),
-							},
-							parameterGenericTypes(i)...,
-						)...,
+						Qual("net/http", "ResponseWriter"),
+						Add(Op("*")).Qual("net/http", "Request"),
+						Error(),
 					),
 			).
 			Qual("net/http", "HandlerFunc").
@@ -113,55 +237,26 @@ func main() {
 							Id("request").Add(Op("*")).Qual("net/http", "Request"),
 						).
 						Block(
-							append(
-								lo.Flatten(
-									lo.Times(i, func(j int) []Code {
-										return []Code{
-											List(
-												Id(genericTypeParamName(j)),
-												Err(),
-											).
-												Op(":=").
-												Id("middleware").
-												Dot(fnName(j+1)).
-												Call(
-													Id("response"),
-													Id("request"),
-												),
-											If(
-												Nil().
-													Op("!=").
-													Err(),
-											).
-												Block(
-													Return(),
-												),
-										}
-									}),
-								),
-								Id("handler").Call(
-									append(
-										[]Code{
-											Id("response"),
-											Id("request"),
-										},
-										lo.Times(i, func(j int) Code { return Id(genericTypeParamName(j)) })...,
-									)...,
-								),
-							)...,
+							Err().
+								Op(":=").
+								Id("chainHandle").Dot("serveHTTP").Call(Id("response"), Id("request")),
+							If(Nil().Op("!=").Err()).
+								Block(Id("handle").Call(Id("response"), Id("request"), Err())),
 						),
 				),
 			)
+
 		f.Line()
+
 		f.Commentf("%s creates a chain of exactly %d number of function%s that will be executed in order.", funcName(i), i, lo.Ternary(i > 1, "s", ""))
 		f.Func().
 			Id(funcName(i)).
 			Types(genericTypes(i)...).
 			Params(fnParams(i)...).
-			Id(structName(i)).Types(parameterGenericTypes(i)...).
+			Id(chainStructName(i)).Types(parameterGenericTypes(i)...).
 			Block(
 				Return(
-					Id(structName(i)).
+					Id(chainStructName(i)).
 						Types(parameterGenericTypes(i)...).
 						Values(lo.Times(i, func(j int) Code { return Id(fnName(j + 1)) })...),
 				),
