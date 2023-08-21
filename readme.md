@@ -1,6 +1,6 @@
 # Middle
 
-Go HTTP middleware I like to use
+Go HTTP middleware I like to use.
 
 ## Usage
 
@@ -12,4 +12,8 @@ As this package only depends on [`net/http`](https://pkg.go.dev/net/http) packag
 
 ## Limitations
 
-This package exposes middleware functions chain with up to 26 functions, i.e., `Ware1` to `Ware26`. I'm planning to expose do some cleanups and make the code generator ready for public use, so you generate your `middle.WareN` up to any number of `N` you need.
+This package exposes middleware functions chain builders for up to 26 functions, i.e., `Chain1` to `Chain26`. Although I think this is way more than enough for many, not most of, applications, you can generate your `middle.WareN` up to any number of `N` you need using [generator](#using-generator).
+
+## Using Generator
+
+See [`gen`](./gen/) package flags, and [`./gen.go`](./gen.go) for an example of usage.
