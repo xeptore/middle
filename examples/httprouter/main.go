@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/xeptore/middle"
+	"github.com/xeptore/middle/v2"
 )
 
 func main() {
 	router := httprouter.New()
-	router.HandlerFunc("GET", "/path", middle.Ware3(m1, m2, m3).Then(handler))
+	router.HandlerFunc("GET", "/path", middle.Chain3(m1, m2, m3).Then(handler))
 	http.ListenAndServe("127.0.0.1:1080", router)
 }
 

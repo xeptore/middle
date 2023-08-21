@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/xeptore/middle"
+	"github.com/xeptore/middle/v2"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/path", middle.Ware3(m1, m2, m3).Then(handler))
+	mux.HandleFunc("/path", middle.Chain3(m1, m2, m3).Then(handler))
 	http.ListenAndServe("127.0.0.1:1080", mux)
 }
 

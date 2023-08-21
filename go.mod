@@ -1,4 +1,4 @@
-module github.com/xeptore/middle
+module github.com/xeptore/middle/v2
 
 go 1.21.0
 
