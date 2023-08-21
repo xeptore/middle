@@ -1,3 +1,3 @@
 package middle
 
-//go:generate go run github.com/xeptore/middle/v2/gen -file middle.go
+//go:generate go run github.com/xeptore/middle/v4/gen -file middle.go
