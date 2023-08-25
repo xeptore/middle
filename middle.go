@@ -3610,3 +3610,263 @@ func (chain ChainHandler26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 func Chain26[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request, A) (B, error), f3 func(http.ResponseWriter, *http.Request, A, B) (C, error), f4 func(http.ResponseWriter, *http.Request, A, B, C) (D, error), f5 func(http.ResponseWriter, *http.Request, A, B, C, D) (E, error), f6 func(http.ResponseWriter, *http.Request, A, B, C, D, E) (F, error), f7 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F) (G, error), f8 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G) (H, error), f9 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H) (I, error), f10 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I) (J, error), f11 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J) (K, error), f12 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K) (L, error), f13 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L) (M, error), f14 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M) (N, error), f15 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N) (O, error), f16 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) (P, error), f17 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) (Q, error), f18 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) (R, error), f19 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) (S, error), f20 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) (T, error), f21 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) (U, error), f22 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) (V, error), f23 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) (W, error), f24 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W) (X, error), f25 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X) (Y, error), f26 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y) error) ChainHandler26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y] {
 	return ChainHandler26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26}
 }
+
+// ChainHandler27 provides capability of processing chain functions in order by satisfying [net/http.Handler], or with an optional chain error handler via [ChainHandler27.Finally] by satisfying [net/http.HandlerFunc]
+type ChainHandler27[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any, Z any] struct {
+	f1  func(http.ResponseWriter, *http.Request) (A, error)
+	f2  func(http.ResponseWriter, *http.Request, A) (B, error)
+	f3  func(http.ResponseWriter, *http.Request, A, B) (C, error)
+	f4  func(http.ResponseWriter, *http.Request, A, B, C) (D, error)
+	f5  func(http.ResponseWriter, *http.Request, A, B, C, D) (E, error)
+	f6  func(http.ResponseWriter, *http.Request, A, B, C, D, E) (F, error)
+	f7  func(http.ResponseWriter, *http.Request, A, B, C, D, E, F) (G, error)
+	f8  func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G) (H, error)
+	f9  func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H) (I, error)
+	f10 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I) (J, error)
+	f11 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J) (K, error)
+	f12 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K) (L, error)
+	f13 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L) (M, error)
+	f14 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M) (N, error)
+	f15 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N) (O, error)
+	f16 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) (P, error)
+	f17 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) (Q, error)
+	f18 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) (R, error)
+	f19 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) (S, error)
+	f20 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) (T, error)
+	f21 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) (U, error)
+	f22 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) (V, error)
+	f23 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) (W, error)
+	f24 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W) (X, error)
+	f25 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X) (Y, error)
+	f26 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y) (Z, error)
+	f27 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z) error
+}
+
+// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+func (chain ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	a, err := chain.f1(response, request)
+	if nil != err {
+		return
+	}
+	b, err := chain.f2(response, request, a)
+	if nil != err {
+		return
+	}
+	c, err := chain.f3(response, request, a, b)
+	if nil != err {
+		return
+	}
+	d, err := chain.f4(response, request, a, b, c)
+	if nil != err {
+		return
+	}
+	e, err := chain.f5(response, request, a, b, c, d)
+	if nil != err {
+		return
+	}
+	f, err := chain.f6(response, request, a, b, c, d, e)
+	if nil != err {
+		return
+	}
+	g, err := chain.f7(response, request, a, b, c, d, e, f)
+	if nil != err {
+		return
+	}
+	h, err := chain.f8(response, request, a, b, c, d, e, f, g)
+	if nil != err {
+		return
+	}
+	i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
+	if nil != err {
+		return
+	}
+	j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
+	if nil != err {
+		return
+	}
+	k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
+	if nil != err {
+		return
+	}
+	l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
+	if nil != err {
+		return
+	}
+	m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
+	if nil != err {
+		return
+	}
+	n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
+	if nil != err {
+		return
+	}
+	o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
+	if nil != err {
+		return
+	}
+	p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+	if nil != err {
+		return
+	}
+	q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
+	if nil != err {
+		return
+	}
+	r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
+	if nil != err {
+		return
+	}
+	s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
+	if nil != err {
+		return
+	}
+	t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
+	if nil != err {
+		return
+	}
+	u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
+	if nil != err {
+		return
+	}
+	v, err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
+	if nil != err {
+		return
+	}
+	w, err := chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
+	if nil != err {
+		return
+	}
+	x, err := chain.f24(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
+	if nil != err {
+		return
+	}
+	y, err := chain.f25(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
+	if nil != err {
+		return
+	}
+	z, err := chain.f26(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y)
+	if nil != err {
+		return
+	}
+	_ = chain.f27(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)
+}
+
+// Finally executes middleware functions registered via [Chain27] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+func (chain ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
+	return func(response http.ResponseWriter, request *http.Request) {
+		a, err := chain.f1(response, request)
+		if nil != err {
+			return
+		}
+		b, err := chain.f2(response, request, a)
+		if nil != err {
+			return
+		}
+		c, err := chain.f3(response, request, a, b)
+		if nil != err {
+			return
+		}
+		d, err := chain.f4(response, request, a, b, c)
+		if nil != err {
+			return
+		}
+		e, err := chain.f5(response, request, a, b, c, d)
+		if nil != err {
+			return
+		}
+		f, err := chain.f6(response, request, a, b, c, d, e)
+		if nil != err {
+			return
+		}
+		g, err := chain.f7(response, request, a, b, c, d, e, f)
+		if nil != err {
+			return
+		}
+		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
+		if nil != err {
+			return
+		}
+		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
+		if nil != err {
+			return
+		}
+		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
+		if nil != err {
+			return
+		}
+		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
+		if nil != err {
+			return
+		}
+		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
+		if nil != err {
+			return
+		}
+		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
+		if nil != err {
+			return
+		}
+		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
+		if nil != err {
+			return
+		}
+		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
+		if nil != err {
+			return
+		}
+		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+		if nil != err {
+			return
+		}
+		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
+		if nil != err {
+			return
+		}
+		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
+		if nil != err {
+			return
+		}
+		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
+		if nil != err {
+			return
+		}
+		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
+		if nil != err {
+			return
+		}
+		u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
+		if nil != err {
+			return
+		}
+		v, err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
+		if nil != err {
+			return
+		}
+		w, err := chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
+		if nil != err {
+			return
+		}
+		x, err := chain.f24(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
+		if nil != err {
+			return
+		}
+		y, err := chain.f25(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
+		if nil != err {
+			return
+		}
+		z, err := chain.f26(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y)
+		if nil != err {
+			return
+		}
+		if err := chain.f27(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z); nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
+		}
+	}
+}
+
+// Chain27 creates a chain of exactly 27 functions that will be executed in order.
+func Chain27[A any, B any, C any, D any, E any, F any, G any, H any, I any, J any, K any, L any, M any, N any, O any, P any, Q any, R any, S any, T any, U any, V any, W any, X any, Y any, Z any](f1 func(http.ResponseWriter, *http.Request) (A, error), f2 func(http.ResponseWriter, *http.Request, A) (B, error), f3 func(http.ResponseWriter, *http.Request, A, B) (C, error), f4 func(http.ResponseWriter, *http.Request, A, B, C) (D, error), f5 func(http.ResponseWriter, *http.Request, A, B, C, D) (E, error), f6 func(http.ResponseWriter, *http.Request, A, B, C, D, E) (F, error), f7 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F) (G, error), f8 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G) (H, error), f9 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H) (I, error), f10 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I) (J, error), f11 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J) (K, error), f12 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K) (L, error), f13 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L) (M, error), f14 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M) (N, error), f15 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N) (O, error), f16 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) (P, error), f17 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) (Q, error), f18 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) (R, error), f19 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) (S, error), f20 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) (T, error), f21 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) (U, error), f22 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) (V, error), f23 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) (W, error), f24 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W) (X, error), f25 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X) (Y, error), f26 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y) (Z, error), f27 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z) error) ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z] {
+	return ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]{f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20, f21, f22, f23, f24, f25, f26, f27}
+}

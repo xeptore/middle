@@ -12,7 +12,7 @@ As this package only depends on [`net/http`](https://pkg.go.dev/net/http) packag
 
 ## Limitations
 
-This package exposes middleware functions chain builders for up to 26 functions, i.e., `Chain1` to `Chain26`. Although I think this is way more than enough for many, not most of, applications, you can generate your `middle.WareN` up to any number of `N` you need using [generator](#using-generator).
+This package exposes middleware functions chain builders for up to 27 functions, i.e., `Chain1` up to `Chain27`. Although I think this is way more than enough for most of applications, I plan to improve the generator so you can generate your `middle.ChainN` up to any number of `N` you need by using it. See [generator](#using-generator) for more.
 
 ## Using Generator
 

@@ -16,7 +16,7 @@ import (
 func init() {
 	flag.StringVar(&pkg, "pkg", "github.com/xeptore/middle/v5", "generated file package name")
 	flag.StringVar(&filename, "file", "./middle.go", "name of the file to write generated code in")
-	flag.IntVar(&n, "n", 26, "number of wares")
+	flag.IntVar(&n, "n", 27, "number of wares")
 	flag.BoolVar(&noHeader, "no-header", false, "do not generate GENERATED header comment")
 }
 
@@ -110,8 +110,8 @@ var (
 )
 
 func validateFlags() error {
-	if n < 1 || n > 26 {
-		return fmt.Errorf("n cannot be < 1 or > 26")
+	if n < 1 || n > 27 {
+		return fmt.Errorf("n cannot be < 1 or > 27")
 	}
 	return nil
 }
