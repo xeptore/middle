@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/xeptore/middle/v4"
+	"github.com/xeptore/middle/v5"
 )
 
 func main() {
