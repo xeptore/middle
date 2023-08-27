@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-	"github.com/xeptore/middle/v5"
+	"github.com/xeptore/middle/v6"
 )
 
 func main() {
