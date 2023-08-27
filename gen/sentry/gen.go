@@ -193,14 +193,20 @@ func main() {
 		}
 	}
 	f.Var().Defs(
-		// Commentf("ErrAbort can be used to stop the middleware chain execution.").
-		Line().
+		Commentf("ErrAbort can be used to stop the middleware chain execution.").
+			Line().
 			Id("ErrAbort").Op("=").Qual("errors", "New").Call(Lit("chain execution stopped")),
 	)
 	for i := 1; i <= n; i++ {
 		structName := chainStructName(i)
 		f.
-			// Commentf("%s provides capability of processing chain functions in order by satisfying [net/http.Handler], or with an optional chain error handler via [%s.Finally] by satisfying [net/http.HandlerFunc]", structName, structName).
+			Comment(
+				lo.Ternary(
+					i > 0,
+					fmt.Sprintf("%s provides capability of calling handler function by satisfying [net/http.Handler], or with an optional chain error handler via [%s.Finally] by satisfying [net/http.HandlerFunc].", structName, structName),
+					fmt.Sprintf("%s provides capability of processing chain functions in order by satisfying [net/http.Handler], or with an optional chain error handler via [%s.Finally] by satisfying [net/http.HandlerFunc].", structName, structName),
+				),
+			).
 			Line().
 			Type().
 			Id(structName).
@@ -209,7 +215,11 @@ func main() {
 
 		f.Line()
 
-		// f.Commentf("ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result%s of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.", lo.Ternary(i > 1, "s", ""))
+		if i < 2 {
+			f.Commentf("ServeHTTP satisfies [net/http.Handler]. It executes handler function, passing Sentry Hub instance ([github.com/getsentry/sentry-go.Hub]), and Sentry Root Transaction ([github.com/getsentry/sentry-go.Span]) to it. The Sentry Hub instance is already cloned and associated to the request, and you do not need to clone it again, or extract it from request context. It recovers any panics that may occur during the chain execution, and sends exception message to Sentry. In order to be able to receive the panic error value, you can use [%s.Finally], so you can to whatever you need to do with it, e.g., log it, or respond with HTTP 500 error to the client, The Sentry Transaction that is passed is a root transaction, which you can create children from it as necessary.", structName)
+		} else {
+			f.Commentf("ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing Sentry Hub instance ([github.com/getsentry/sentry-go.Hub]), root Sentry Transaction ([github.com/getsentry/sentry-go.Span]), and accumulated results of all previous function calls to each handler. The Sentry Hub instance is already cloned and associated to the request, and you do not need to clone it again, or extract it from request context. It recovers any panics that may occur during the chain execution, and sends exception message to Sentry. In order to be able to receive the panic error value, you can use [%s.Finally], so you can to whatever you need to do with it, e.g., log it, or respond with HTTP 500 error to the client, The Sentry Transaction that is passed is a root transaction, which you can create children from it as necessary. If any of the functions in the chain returns a non-nil error, the execution stops.", structName)
+		}
 		f.
 			Func().
 			Params(Id("chain").Id(structName).Types(parameterGenericTypes(i)...)).
@@ -275,7 +285,11 @@ func main() {
 
 		f.Line()
 
-		// f.Commentf("Finally executes middleware functions registered via [%s] in order, passing result%s of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.", factoryFuncName(i), lo.Ternary(i > 1, "s", ""))
+		if i < 2 {
+			f.Commentf("Finally executes middleware function registered via [%s], passing Sentry Hub instance ([github.com/getsentry/sentry-go.Hub]), and Sentry Root transaction ([github.com/getsentry/sentry-go.Span]) to it. The Sentry Hub instance is already cloned and associated to the request, and you do not need to clone it again, or extract it from request context. It recovers any panics that may occur during the chain execution, and sends exception message to Sentry. Finally, it calls catch callback with the recovered error, so you can to whatever you need to do with it, e.g., log it, or respond with HTTP 500 error to the client, The Sentry Transaction that is passed is a root transaction, which you can create children from it as necessary. If the function returns a non-nil error, that is not [ErrAbort] according to [errors.Is] semantics, catch callback will be called with that error.", factoryFuncName(i))
+		} else {
+			f.Commentf("Finally executes middleware functions registered via [%s] in order, passing Sentry Hub instance ([github.com/getsentry/sentry-go.Hub]), root Sentry Transaction ([github.com/getsentry/sentry-go.Span]), and accumulated results of all previous function calls to each handler. The Sentry Hub instance is already cloned and associated to the request, and you do not need to clone it again, or extract it from request context. It recovers any panics that may occur during the chain execution, and sends exception message to Sentry. Finally, it calls catch callback with the recovered error, so you can to whatever you need to do with it, e.g., log it, or respond with HTTP 500 error to the client, The Sentry Transaction that is passed is a root transaction, which you can create children from it as necessary. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.", factoryFuncName(i))
+		}
 		f.
 			Func().
 			Params(Id("chain").Id(structName).Types(parameterGenericTypes(i)...)).

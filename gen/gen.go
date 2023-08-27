@@ -141,7 +141,7 @@ func main() {
 
 		f.Line()
 
-		if i > 1 {
+		if i < 2 {
 			f.Comment("ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.")
 		} else {
 			f.Commentf("ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing results of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.")
@@ -204,7 +204,7 @@ func main() {
 
 		f.Line()
 
-		if i > 1 {
+		if i < 2 {
 			f.Commentf("Finally executes middleware function registered via [%s], passing request, and response to it.", factoryFuncName(i))
 		} else {
 			f.Commentf("Finally executes middleware functions registered via [%s] in order, passing results of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.", factoryFuncName(i))
