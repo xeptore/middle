@@ -254,6 +254,15 @@ func main() {
 													Err(),
 											).
 												Block(
+													If(
+														Op("!").
+															Add().
+															Qual("errors", "Is").
+															Call(Err(), Id("ErrAbort")),
+													).
+														Block(
+															Id("catch").Call(Id("response"), Id("request"), Err()),
+														),
 													Return(),
 												),
 										}

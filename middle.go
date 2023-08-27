@@ -56,6 +56,9 @@ func (chain ChainHandler2[A]) Finally(catch func(http.ResponseWriter, *http.Requ
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f2(response, request, a); nil != err {
@@ -96,10 +99,16 @@ func (chain ChainHandler3[A, B]) Finally(catch func(http.ResponseWriter, *http.R
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f3(response, request, a, b); nil != err {
@@ -145,14 +154,23 @@ func (chain ChainHandler4[A, B, C]) Finally(catch func(http.ResponseWriter, *htt
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f4(response, request, a, b, c); nil != err {
@@ -203,18 +221,30 @@ func (chain ChainHandler5[A, B, C, D]) Finally(catch func(http.ResponseWriter, *
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f5(response, request, a, b, c, d); nil != err {
@@ -270,22 +300,37 @@ func (chain ChainHandler6[A, B, C, D, E]) Finally(catch func(http.ResponseWriter
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f6(response, request, a, b, c, d, e); nil != err {
@@ -346,26 +391,44 @@ func (chain ChainHandler7[A, B, C, D, E, F]) Finally(catch func(http.ResponseWri
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f7(response, request, a, b, c, d, e, f); nil != err {
@@ -431,30 +494,51 @@ func (chain ChainHandler8[A, B, C, D, E, F, G]) Finally(catch func(http.Response
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f8(response, request, a, b, c, d, e, f, g); nil != err {
@@ -525,34 +609,58 @@ func (chain ChainHandler9[A, B, C, D, E, F, G, H]) Finally(catch func(http.Respo
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f9(response, request, a, b, c, d, e, f, g, h); nil != err {
@@ -628,38 +736,65 @@ func (chain ChainHandler10[A, B, C, D, E, F, G, H, I]) Finally(catch func(http.R
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f10(response, request, a, b, c, d, e, f, g, h, i); nil != err {
@@ -740,42 +875,72 @@ func (chain ChainHandler11[A, B, C, D, E, F, G, H, I, J]) Finally(catch func(htt
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j); nil != err {
@@ -861,46 +1026,79 @@ func (chain ChainHandler12[A, B, C, D, E, F, G, H, I, J, K]) Finally(catch func(
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k); nil != err {
@@ -991,50 +1189,86 @@ func (chain ChainHandler13[A, B, C, D, E, F, G, H, I, J, K, L]) Finally(catch fu
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l); nil != err {
@@ -1130,54 +1364,93 @@ func (chain ChainHandler14[A, B, C, D, E, F, G, H, I, J, K, L, M]) Finally(catch
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m); nil != err {
@@ -1278,58 +1551,100 @@ func (chain ChainHandler15[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) Finally(ca
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n); nil != err {
@@ -1435,62 +1750,107 @@ func (chain ChainHandler16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) Finally
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o); nil != err {
@@ -1601,66 +1961,114 @@ func (chain ChainHandler17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) Fina
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p); nil != err {
@@ -1776,70 +2184,121 @@ func (chain ChainHandler18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) F
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q); nil != err {
@@ -1960,74 +2419,128 @@ func (chain ChainHandler19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r); nil != err {
@@ -2153,78 +2666,135 @@ func (chain ChainHandler20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s); nil != err {
@@ -2355,82 +2925,142 @@ func (chain ChainHandler21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t); nil != err {
@@ -2566,86 +3196,149 @@ func (chain ChainHandler22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u); nil != err {
@@ -2786,90 +3479,156 @@ func (chain ChainHandler23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		v, err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v); nil != err {
@@ -3015,94 +3774,163 @@ func (chain ChainHandler24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		v, err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		w, err := chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f24(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w); nil != err {
@@ -3253,98 +4081,170 @@ func (chain ChainHandler25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		v, err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		w, err := chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		x, err := chain.f24(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f25(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x); nil != err {
@@ -3500,102 +4400,177 @@ func (chain ChainHandler26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		v, err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		w, err := chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		x, err := chain.f24(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		y, err := chain.f25(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f26(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y); nil != err {
@@ -3756,106 +4731,184 @@ func (chain ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		b, err := chain.f2(response, request, a)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		c, err := chain.f3(response, request, a, b)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		d, err := chain.f4(response, request, a, b, c)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		e, err := chain.f5(response, request, a, b, c, d)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		f, err := chain.f6(response, request, a, b, c, d, e)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		g, err := chain.f7(response, request, a, b, c, d, e, f)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		h, err := chain.f8(response, request, a, b, c, d, e, f, g)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		i, err := chain.f9(response, request, a, b, c, d, e, f, g, h)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		j, err := chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		k, err := chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		l, err := chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		m, err := chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		n, err := chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		o, err := chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		p, err := chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		q, err := chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		r, err := chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		s, err := chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		t, err := chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		u, err := chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		v, err := chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		w, err := chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		x, err := chain.f24(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		y, err := chain.f25(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		z, err := chain.f26(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y)
 		if nil != err {
+			if !errors.Is(err, ErrAbort) {
+				catch(response, request, err)
+			}
 			return
 		}
 		if err := chain.f27(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z); nil != err {
