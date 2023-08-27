@@ -15,12 +15,12 @@ type ChainHandler1 struct {
 	f1 func(http.ResponseWriter, *http.Request) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing results of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
 func (chain ChainHandler1) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	_ = chain.f1(response, request)
 }
 
-// Finally executes middleware functions registered via [Chain1] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware functions registered via [Chain1] in order, passing results of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
 func (chain ChainHandler1) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		if err := chain.f1(response, request); nil != err {
@@ -42,7 +42,7 @@ type ChainHandler2[A any] struct {
 	f2 func(http.ResponseWriter, *http.Request, A) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler2[A]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -51,7 +51,7 @@ func (chain ChainHandler2[A]) ServeHTTP(response http.ResponseWriter, request *h
 	_ = chain.f2(response, request, a)
 }
 
-// Finally executes middleware functions registered via [Chain2] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain2], passing request, and response to it.
 func (chain ChainHandler2[A]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -81,7 +81,7 @@ type ChainHandler3[A any, B any] struct {
 	f3 func(http.ResponseWriter, *http.Request, A, B) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler3[A, B]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -94,7 +94,7 @@ func (chain ChainHandler3[A, B]) ServeHTTP(response http.ResponseWriter, request
 	_ = chain.f3(response, request, a, b)
 }
 
-// Finally executes middleware functions registered via [Chain3] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain3], passing request, and response to it.
 func (chain ChainHandler3[A, B]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -132,7 +132,7 @@ type ChainHandler4[A any, B any, C any] struct {
 	f4 func(http.ResponseWriter, *http.Request, A, B, C) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler4[A, B, C]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -149,7 +149,7 @@ func (chain ChainHandler4[A, B, C]) ServeHTTP(response http.ResponseWriter, requ
 	_ = chain.f4(response, request, a, b, c)
 }
 
-// Finally executes middleware functions registered via [Chain4] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain4], passing request, and response to it.
 func (chain ChainHandler4[A, B, C]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -195,7 +195,7 @@ type ChainHandler5[A any, B any, C any, D any] struct {
 	f5 func(http.ResponseWriter, *http.Request, A, B, C, D) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler5[A, B, C, D]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -216,7 +216,7 @@ func (chain ChainHandler5[A, B, C, D]) ServeHTTP(response http.ResponseWriter, r
 	_ = chain.f5(response, request, a, b, c, d)
 }
 
-// Finally executes middleware functions registered via [Chain5] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain5], passing request, and response to it.
 func (chain ChainHandler5[A, B, C, D]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -270,7 +270,7 @@ type ChainHandler6[A any, B any, C any, D any, E any] struct {
 	f6 func(http.ResponseWriter, *http.Request, A, B, C, D, E) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler6[A, B, C, D, E]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -295,7 +295,7 @@ func (chain ChainHandler6[A, B, C, D, E]) ServeHTTP(response http.ResponseWriter
 	_ = chain.f6(response, request, a, b, c, d, e)
 }
 
-// Finally executes middleware functions registered via [Chain6] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain6], passing request, and response to it.
 func (chain ChainHandler6[A, B, C, D, E]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -357,7 +357,7 @@ type ChainHandler7[A any, B any, C any, D any, E any, F any] struct {
 	f7 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler7[A, B, C, D, E, F]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -386,7 +386,7 @@ func (chain ChainHandler7[A, B, C, D, E, F]) ServeHTTP(response http.ResponseWri
 	_ = chain.f7(response, request, a, b, c, d, e, f)
 }
 
-// Finally executes middleware functions registered via [Chain7] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain7], passing request, and response to it.
 func (chain ChainHandler7[A, B, C, D, E, F]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -456,7 +456,7 @@ type ChainHandler8[A any, B any, C any, D any, E any, F any, G any] struct {
 	f8 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler8[A, B, C, D, E, F, G]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -489,7 +489,7 @@ func (chain ChainHandler8[A, B, C, D, E, F, G]) ServeHTTP(response http.Response
 	_ = chain.f8(response, request, a, b, c, d, e, f, g)
 }
 
-// Finally executes middleware functions registered via [Chain8] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain8], passing request, and response to it.
 func (chain ChainHandler8[A, B, C, D, E, F, G]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -567,7 +567,7 @@ type ChainHandler9[A any, B any, C any, D any, E any, F any, G any, H any] struc
 	f9 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler9[A, B, C, D, E, F, G, H]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -604,7 +604,7 @@ func (chain ChainHandler9[A, B, C, D, E, F, G, H]) ServeHTTP(response http.Respo
 	_ = chain.f9(response, request, a, b, c, d, e, f, g, h)
 }
 
-// Finally executes middleware functions registered via [Chain9] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain9], passing request, and response to it.
 func (chain ChainHandler9[A, B, C, D, E, F, G, H]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -690,7 +690,7 @@ type ChainHandler10[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f10 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler10[A, B, C, D, E, F, G, H, I]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -731,7 +731,7 @@ func (chain ChainHandler10[A, B, C, D, E, F, G, H, I]) ServeHTTP(response http.R
 	_ = chain.f10(response, request, a, b, c, d, e, f, g, h, i)
 }
 
-// Finally executes middleware functions registered via [Chain10] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain10], passing request, and response to it.
 func (chain ChainHandler10[A, B, C, D, E, F, G, H, I]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -825,7 +825,7 @@ type ChainHandler11[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f11 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler11[A, B, C, D, E, F, G, H, I, J]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -870,7 +870,7 @@ func (chain ChainHandler11[A, B, C, D, E, F, G, H, I, J]) ServeHTTP(response htt
 	_ = chain.f11(response, request, a, b, c, d, e, f, g, h, i, j)
 }
 
-// Finally executes middleware functions registered via [Chain11] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain11], passing request, and response to it.
 func (chain ChainHandler11[A, B, C, D, E, F, G, H, I, J]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -972,7 +972,7 @@ type ChainHandler12[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f12 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler12[A, B, C, D, E, F, G, H, I, J, K]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -1021,7 +1021,7 @@ func (chain ChainHandler12[A, B, C, D, E, F, G, H, I, J, K]) ServeHTTP(response 
 	_ = chain.f12(response, request, a, b, c, d, e, f, g, h, i, j, k)
 }
 
-// Finally executes middleware functions registered via [Chain12] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain12], passing request, and response to it.
 func (chain ChainHandler12[A, B, C, D, E, F, G, H, I, J, K]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -1131,7 +1131,7 @@ type ChainHandler13[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f13 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler13[A, B, C, D, E, F, G, H, I, J, K, L]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -1184,7 +1184,7 @@ func (chain ChainHandler13[A, B, C, D, E, F, G, H, I, J, K, L]) ServeHTTP(respon
 	_ = chain.f13(response, request, a, b, c, d, e, f, g, h, i, j, k, l)
 }
 
-// Finally executes middleware functions registered via [Chain13] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain13], passing request, and response to it.
 func (chain ChainHandler13[A, B, C, D, E, F, G, H, I, J, K, L]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -1302,7 +1302,7 @@ type ChainHandler14[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f14 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler14[A, B, C, D, E, F, G, H, I, J, K, L, M]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -1359,7 +1359,7 @@ func (chain ChainHandler14[A, B, C, D, E, F, G, H, I, J, K, L, M]) ServeHTTP(res
 	_ = chain.f14(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m)
 }
 
-// Finally executes middleware functions registered via [Chain14] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain14], passing request, and response to it.
 func (chain ChainHandler14[A, B, C, D, E, F, G, H, I, J, K, L, M]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -1485,7 +1485,7 @@ type ChainHandler15[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f15 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler15[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -1546,7 +1546,7 @@ func (chain ChainHandler15[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) ServeHTTP(
 	_ = chain.f15(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n)
 }
 
-// Finally executes middleware functions registered via [Chain15] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain15], passing request, and response to it.
 func (chain ChainHandler15[A, B, C, D, E, F, G, H, I, J, K, L, M, N]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -1680,7 +1680,7 @@ type ChainHandler16[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f16 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -1745,7 +1745,7 @@ func (chain ChainHandler16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) ServeHT
 	_ = chain.f16(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 }
 
-// Finally executes middleware functions registered via [Chain16] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain16], passing request, and response to it.
 func (chain ChainHandler16[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -1887,7 +1887,7 @@ type ChainHandler17[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f17 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -1956,7 +1956,7 @@ func (chain ChainHandler17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) Serv
 	_ = chain.f17(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p)
 }
 
-// Finally executes middleware functions registered via [Chain17] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain17], passing request, and response to it.
 func (chain ChainHandler17[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -2106,7 +2106,7 @@ type ChainHandler18[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f18 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -2179,7 +2179,7 @@ func (chain ChainHandler18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) S
 	_ = chain.f18(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q)
 }
 
-// Finally executes middleware functions registered via [Chain18] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain18], passing request, and response to it.
 func (chain ChainHandler18[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -2337,7 +2337,7 @@ type ChainHandler19[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f19 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -2414,7 +2414,7 @@ func (chain ChainHandler19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]
 	_ = chain.f19(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r)
 }
 
-// Finally executes middleware functions registered via [Chain19] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain19], passing request, and response to it.
 func (chain ChainHandler19[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -2580,7 +2580,7 @@ type ChainHandler20[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f20 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -2661,7 +2661,7 @@ func (chain ChainHandler20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f20(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s)
 }
 
-// Finally executes middleware functions registered via [Chain20] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain20], passing request, and response to it.
 func (chain ChainHandler20[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -2835,7 +2835,7 @@ type ChainHandler21[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f21 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -2920,7 +2920,7 @@ func (chain ChainHandler21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f21(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t)
 }
 
-// Finally executes middleware functions registered via [Chain21] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain21], passing request, and response to it.
 func (chain ChainHandler21[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -3102,7 +3102,7 @@ type ChainHandler22[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f22 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -3191,7 +3191,7 @@ func (chain ChainHandler22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f22(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u)
 }
 
-// Finally executes middleware functions registered via [Chain22] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain22], passing request, and response to it.
 func (chain ChainHandler22[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -3381,7 +3381,7 @@ type ChainHandler23[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f23 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -3474,7 +3474,7 @@ func (chain ChainHandler23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f23(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v)
 }
 
-// Finally executes middleware functions registered via [Chain23] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain23], passing request, and response to it.
 func (chain ChainHandler23[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -3672,7 +3672,7 @@ type ChainHandler24[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f24 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -3769,7 +3769,7 @@ func (chain ChainHandler24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f24(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w)
 }
 
-// Finally executes middleware functions registered via [Chain24] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain24], passing request, and response to it.
 func (chain ChainHandler24[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -3975,7 +3975,7 @@ type ChainHandler25[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f25 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -4076,7 +4076,7 @@ func (chain ChainHandler25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f25(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x)
 }
 
-// Finally executes middleware functions registered via [Chain25] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain25], passing request, and response to it.
 func (chain ChainHandler25[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -4290,7 +4290,7 @@ type ChainHandler26[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f26 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -4395,7 +4395,7 @@ func (chain ChainHandler26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f26(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y)
 }
 
-// Finally executes middleware functions registered via [Chain26] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain26], passing request, and response to it.
 func (chain ChainHandler26[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)
@@ -4617,7 +4617,7 @@ type ChainHandler27[A any, B any, C any, D any, E any, F any, G any, H any, I an
 	f27 func(http.ResponseWriter, *http.Request, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z) error
 }
 
-// ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.
+// ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.
 func (chain ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	a, err := chain.f1(response, request)
 	if nil != err {
@@ -4726,7 +4726,7 @@ func (chain ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
 	_ = chain.f27(response, request, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z)
 }
 
-// Finally executes middleware functions registered via [Chain27] in order, passing result(s) of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.
+// Finally executes middleware function registered via [Chain27], passing request, and response to it.
 func (chain ChainHandler27[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]) Finally(catch func(http.ResponseWriter, *http.Request, error)) http.HandlerFunc {
 	return func(response http.ResponseWriter, request *http.Request) {
 		a, err := chain.f1(response, request)

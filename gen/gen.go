@@ -7,14 +7,21 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"runtime/debug"
 	"strings"
 
 	. "github.com/dave/jennifer/jen"
 	"github.com/samber/lo"
 )
 
+var moduleName string
+
 func init() {
-	flag.StringVar(&pkg, "pkg", "github.com/xeptore/middle/v5", "generated file package name")
+	info, ok := debug.ReadBuildInfo()
+	if ok {
+		moduleName = info.Main.Path
+	}
+	flag.StringVar(&pkg, "pkg", moduleName, "generated file package name")
 	flag.StringVar(&filename, "file", "./middle.go", "name of the file to write generated code in")
 	flag.IntVar(&n, "n", 27, "maximum generated number of chains")
 	flag.BoolVar(&noHeader, "no-header", false, "do not generate GENERATED header comment")
@@ -95,6 +102,9 @@ var (
 )
 
 func validateFlags() error {
+	if moduleName == "" {
+		return fmt.Errorf("pkg option is required")
+	}
 	if n < 1 || n > 27 {
 		return fmt.Errorf("n cannot be < 1 or > 27")
 	}
@@ -131,7 +141,11 @@ func main() {
 
 		f.Line()
 
-		f.Commentf("ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing result%s of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.", lo.Ternary(i > 1, "s", ""))
+		if i > 1 {
+			f.Comment("ServeHTTP satisfies [net/http.Handler]. It executes the handler function, passing request, and response to it.")
+		} else {
+			f.Commentf("ServeHTTP satisfies [net/http.Handler]. It executes functions in the chain in order, passing results of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops.")
+		}
 		f.
 			Func().
 			Params(Id("chain").Id(structName).Types(parameterGenericTypes(i)...)).
@@ -190,7 +204,11 @@ func main() {
 
 		f.Line()
 
-		f.Commentf("Finally executes middleware functions registered via [%s] in order, passing result%s of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.", factoryFuncName(i), lo.Ternary(i > 1, "s", ""))
+		if i > 1 {
+			f.Commentf("Finally executes middleware function registered via [%s], passing request, and response to it.", factoryFuncName(i))
+		} else {
+			f.Commentf("Finally executes middleware functions registered via [%s] in order, passing results of all previous function calls to it. If any of the functions in the chain returns a non-nil error, the execution stops, and executes catch with that error. If the error is [ErrAbort] according to [errors.Is] semantics, it is ignored, and catch will not be called, although the chain execution stops.", factoryFuncName(i))
+		}
 		f.
 			Func().
 			Params(Id("chain").Id(structName).Types(parameterGenericTypes(i)...)).
