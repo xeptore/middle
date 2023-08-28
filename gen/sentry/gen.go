@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
+	"path/filepath"
 	"runtime/debug"
 	"strings"
 
@@ -14,17 +14,20 @@ import (
 	"github.com/samber/lo"
 )
 
-var moduleName string
+var (
+	moduleName      string
+	defaultFileName string = "./sentry.go"
+)
 
 func init() {
 	info, ok := debug.ReadBuildInfo()
 	if ok {
 		moduleName = info.Path
 	}
-	flag.StringVar(&pkg, "pkg", moduleName, "generated file package name")
-	flag.StringVar(&filename, "file", "./sentry.go", "name of the file to write generated code in")
-	flag.IntVar(&n, "n", 27, "maximum generated number of chains")
-	flag.BoolVar(&noHeader, "no-header", false, "do not generate GENERATED header comment")
+	flag.StringVar(&filename, "file", defaultFileName, "Name of the file to write generated code in")
+	flag.StringVar(&pkg, "pkg", "", "Set generated file package name. It tries to guess it, but it might require this option if it can not.")
+	flag.IntVar(&n, "n", 27, "Maximum generated number of chains")
+	flag.BoolVar(&noHeader, "no-header", false, "Do not generate GENERATED header comment")
 }
 
 var alphabets = []string{
@@ -179,11 +182,16 @@ func main() {
 	if err := validateFlags(); nil != err {
 		log.Fatalf("provided flags are invalid: %v", err)
 	}
-	filePathPkg := pkg
-	if matches, _ := regexp.MatchString(`/v\d$`, pkg); matches {
-		filePathPkg = pkg[:strings.LastIndex(pkg, "/")]
+	var f *File
+	cwd, err := os.Getwd()
+	if nil != err {
+		if pkg == "" {
+			log.Fatalln("could not guess generated file package name, pkg option is required.")
+		}
+		f = NewFile(pkg)
+	} else {
+		f = NewFilePath(filepath.Base(filepath.Join(cwd, filepath.Clean(filepath.Dir(filename)))))
 	}
-	f := NewFilePath(filePathPkg)
 	f.ImportName(sentryPkgQualPath, "sentry")
 	if !noHeader {
 		if moduleName == "" {
